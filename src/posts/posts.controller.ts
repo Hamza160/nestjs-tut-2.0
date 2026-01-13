@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import {PostsService} from "./posts.service";
 import {Post as PostInterface} from "./interface/post.interface";
+import {CreatePostDto} from "./dto/create-post.dto";
 
 @Controller('posts')
 export class PostsController {
@@ -37,7 +38,7 @@ export class PostsController {
 
     @Post('create')
     @HttpCode(HttpStatus.CREATED)
-    create(@Body() post: Omit<PostInterface, 'id' | 'createdAt'>) {
+    create(@Body() post: CreatePostDto) {
         return this.postsService.create(post);
     }
 
