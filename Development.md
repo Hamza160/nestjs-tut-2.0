@@ -6,6 +6,6 @@ npm i @nestjs/config
 
 pnpm add class-validator class-transformer
 
-
+# TypeORM with mysql
 
 
