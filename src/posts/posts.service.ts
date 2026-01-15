@@ -3,6 +3,8 @@ import {PostInterface} from "./interface/post.interface";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Post} from "./entities/post.entity"
+import {CreatePostDto} from "./dto/create-post.dto";
+import {UpdatePostDto} from "./dto/update-post.dto";
 
 @Injectable()
 export class PostsService {
@@ -24,47 +26,36 @@ export class PostsService {
         return singlePost;
     }
 
-    async create(createPostData: Omit<PostInterface, 'id' | 'createdAt'>): PostInterface {
-        const newPost: PostInterface = {
-            id: this.getNextId(),
-            ...createPostData,
-            createdAt: new Date()
-        }
+    async create(createPostData: CreatePostDto): Promise<Post> {
+        const newlyCreatedPost = this.postRepository.create({
+            title: createPostData.title,
+            content: createPostData.content,
+            authorName: createPostData.authorName,
+        });
 
-        this.posts.unshift(newPost);
-
-        return newPost;
+        return this.postRepository.save(newlyCreatedPost);
     }
 
-    private getNextId(): number {
-        return this.posts.length > 0 ? Math.max(...this.posts.map(post => post.id)) + 1 : 1;
+    async update(id: number, updatePostData: UpdatePostDto): Promise<Post> {
+        const findPostToUpdate = await this.findOne(id);
+
+        if (updatePostData.title) {
+            findPostToUpdate.title = updatePostData.title;
+        }
+
+        if (updatePostData.content) {
+            findPostToUpdate.content = updatePostData.content;
+        }
+
+        if (updatePostData.authorName) {
+            findPostToUpdate.authorName = updatePostData.authorName;
+        }
+
+        return this.postRepository.save(findPostToUpdate);
     }
 
-    update(id: number, updatePostData: Partial<Omit<PostInterface, 'id' | 'createdAt'>>) {
-        const currentPostIndexToEdit = this.posts.findIndex(post => post.id === id);
-
-        if (currentPostIndexToEdit === -1) {
-            throw new NotFoundException("Post not found.");
-        }
-
-        this.posts[currentPostIndexToEdit] = {
-            ...this.posts[currentPostIndexToEdit],
-            ...updatePostData,
-            updatedAt: new Date()
-        }
-
-        return this.posts[currentPostIndexToEdit];
-    }
-
-    remove(id: number) {
-        const postIndexToDelete = this.posts.findIndex(post => post.id === id);
-
-        if (postIndexToDelete === -1) {
-            throw new NotFoundException("Post not found.");
-        }
-
-        this.posts.splice(postIndexToDelete, 1);
-
-        return {message: "Post deleted successfully."};
+    async remove(id: number): Promise<void> {
+        const findPostToRemove = await this.findOne(id);
+        await this.postRepository.remove(findPostToRemove);
     }
 }

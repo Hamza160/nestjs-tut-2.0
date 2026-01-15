@@ -12,21 +12,18 @@ import {
     Query, UsePipes, ValidationPipe
 } from '@nestjs/common';
 import {PostsService} from "./posts.service";
-import {PostInterface} from "./interface/post.interface";
 import {CreatePostDto} from "./dto/create-post.dto";
 import {PostExistPipe} from "./pipes/post-exist.pipe";
+import {UpdatePostDto} from "./dto/update-post.dto";
 
 @Controller('posts')
 export class PostsController {
-    constructor(private postsService: PostsService) {}
+    constructor(private postsService: PostsService) {
+    }
 
     @Get()
     findALl(@Query('search') search?: string) {
         const extractAllPosts = this.postsService.findAll();
-
-        if (search) {
-            return extractAllPosts.filter(singlePost => singlePost.title.toLowerCase().includes(search.toLowerCase()));
-        }
 
         return extractAllPosts;
     }
@@ -47,7 +44,7 @@ export class PostsController {
     }
 
     @Put(":id")
-    update(@Param('id', ParseIntPipe, PostExistPipe) id: number, @Body() post: Partial<Omit<PostInterface, 'id' | 'createdAt'>>) {
+    update(@Param('id', ParseIntPipe, PostExistPipe) id: number, @Body() post: UpdatePostDto) {
         return this.postsService.update(id, post);
     }
 
