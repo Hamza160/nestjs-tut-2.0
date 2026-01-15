@@ -1,32 +1,31 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
-import {Post} from "./interface/post.interface";
+import {PostInterface} from "./interface/post.interface";
+import {InjectRepository} from "@nestjs/typeorm";
+import {Repository} from "typeorm";
+import {Post} from "./entities/post.entity"
 
 @Injectable()
 export class PostsService {
-    private posts: Post[] = [
-        {
-            id: 1,
-            title: "First",
-            content: "Fist Post Content",
-            authorName: "Hamza",
-            createdAt: new Date(),
-        }
-    ];
 
-    findAll() {
-        return this.posts;
+    constructor(
+        @InjectRepository(Post)
+        private postRepository: Repository<Post>,
+    )
+
+    async findAll(): Promise<Post[]> {
+        return this.postRepository.find();
     }
 
-    findOne(id: number) {
-        const singlePost = this.posts.find(post => post.id === id);
+    async findOne(id: number) {
+        const singlePost = await this.postRepository.findOneBy({id});
         if (!singlePost) {
             throw new NotFoundException("Post not found.");
         }
         return singlePost;
     }
 
-    create(createPostData: Omit<Post, 'id' | 'createdAt'>): Post {
-        const newPost: Post = {
+    async create(createPostData: Omit<PostInterface, 'id' | 'createdAt'>): PostInterface {
+        const newPost: PostInterface = {
             id: this.getNextId(),
             ...createPostData,
             createdAt: new Date()
@@ -41,7 +40,7 @@ export class PostsService {
         return this.posts.length > 0 ? Math.max(...this.posts.map(post => post.id)) + 1 : 1;
     }
 
-    update(id: number, updatePostData: Partial<Omit<Post, 'id' | 'createdAt'>>) {
+    update(id: number, updatePostData: Partial<Omit<PostInterface, 'id' | 'createdAt'>>) {
         const currentPostIndexToEdit = this.posts.findIndex(post => post.id === id);
 
         if (currentPostIndexToEdit === -1) {
@@ -58,14 +57,14 @@ export class PostsService {
     }
 
     remove(id: number) {
-        const postIndexToDelete  = this.posts.findIndex(post => post.id === id);
+        const postIndexToDelete = this.posts.findIndex(post => post.id === id);
 
-        if(postIndexToDelete === -1) {
+        if (postIndexToDelete === -1) {
             throw new NotFoundException("Post not found.");
         }
 
         this.posts.splice(postIndexToDelete, 1);
 
-        return {message:"Post deleted successfully."};
+        return {message: "Post deleted successfully."};
     }
 }

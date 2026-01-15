@@ -1,7 +1,7 @@
 import {Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
 
 @Entity()
-export class PostEntity {
+export class Post {
     @PrimaryGeneratedColumn()
     id: number;
 

@@ -3,7 +3,7 @@ import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {PostsModule} from './posts/posts.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {PostEntity} from "./posts/entities/post.entity";
+import {Post} from "./posts/entities/post.entity";
 
 @Module({
     imports: [
@@ -14,7 +14,7 @@ import {PostEntity} from "./posts/entities/post.entity";
             username: 'root',
             password: 'Godisgreat@134',
             database: 'nestjs',
-            entities: [PostEntity],
+            entities: [Post],
             synchronize: true, // dev mode
         }),
         PostsModule

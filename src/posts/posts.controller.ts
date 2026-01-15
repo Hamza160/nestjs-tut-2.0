@@ -12,7 +12,7 @@ import {
     Query, UsePipes, ValidationPipe
 } from '@nestjs/common';
 import {PostsService} from "./posts.service";
-import {Post as PostInterface} from "./interface/post.interface";
+import {PostInterface} from "./interface/post.interface";
 import {CreatePostDto} from "./dto/create-post.dto";
 import {PostExistPipe} from "./pipes/post-exist.pipe";
 
