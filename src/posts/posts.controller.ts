@@ -15,6 +15,7 @@ import {PostsService} from "./posts.service";
 import {CreatePostDto} from "./dto/create-post.dto";
 import {PostExistPipe} from "./pipes/post-exist.pipe";
 import {UpdatePostDto} from "./dto/update-post.dto";
+import {Post as PostEntity} from './entities/post.entity'
 
 @Controller('posts')
 export class PostsController {
@@ -22,14 +23,12 @@ export class PostsController {
     }
 
     @Get()
-    findALl(@Query('search') search?: string) {
-        const extractAllPosts = this.postsService.findAll();
-
-        return extractAllPosts;
+    async findAll(): Promise<PostEntity[]> {
+        return this.postsService.findAll();
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe, PostExistPipe) id: number) {
+    async findOne(@Param('id', ParseIntPipe, PostExistPipe) id: number): Promise<PostEntity> {
         return this.postsService.findOne(id)
     }
 
@@ -39,18 +38,18 @@ export class PostsController {
         whitelist: true,
         forbidNonWhitelisted: true
     }))
-    create(@Body() post: CreatePostDto) {
+    async create(@Body() post: CreatePostDto): Promise<PostEntity> {
         return this.postsService.create(post);
     }
 
     @Put(":id")
-    update(@Param('id', ParseIntPipe, PostExistPipe) id: number, @Body() post: UpdatePostDto) {
+    async update(@Param('id', ParseIntPipe, PostExistPipe) id: number, @Body() post: UpdatePostDto): Promise<PostEntity> {
         return this.postsService.update(id, post);
     }
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    delete(@Param('id', ParseIntPipe, PostExistPipe) id: number) {
-        return this.postsService.remove(id);
+    async delete(@Param('id', ParseIntPipe, PostExistPipe) id: number): Promise<void> {
+        await this.postsService.remove(id);
     }
 }

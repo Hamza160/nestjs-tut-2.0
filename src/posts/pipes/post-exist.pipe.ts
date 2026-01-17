@@ -8,7 +8,7 @@ export class PostExistPipe implements PipeTransform {
 
     transform(value: any, metadata: ArgumentMetadata): any {
         try {
-            this.postsService.findOne(value);
+            this.postsService.findOne(Number(value));
         } catch (e) {
             throw new NotFoundException(`Post with ${value} not found`);
         }

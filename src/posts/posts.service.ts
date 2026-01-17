@@ -9,10 +9,12 @@ import {UpdatePostDto} from "./dto/update-post.dto";
 @Injectable()
 export class PostsService {
 
+    // @ts-ignore
     constructor(
         @InjectRepository(Post)
         private postRepository: Repository<Post>,
-    )
+    ) {
+    }
 
     async findAll(): Promise<Post[]> {
         return this.postRepository.find();
