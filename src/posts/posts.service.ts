@@ -1,5 +1,4 @@
 import {Injectable, NotFoundException} from '@nestjs/common';
-import {PostInterface} from "./interface/post.interface";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Post} from "./entities/post.entity"
