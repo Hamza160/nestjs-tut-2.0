@@ -3,8 +3,9 @@ import {User, UserRole} from "./entities/user.entity"
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {RegisterDto} from "./dto/register.dto";
-import bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt';
 import {LoginDto} from "./dto/login.dto";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
@@ -12,6 +13,7 @@ export class AuthService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        private jwtService: JwtService,
     ) {
     }
 
@@ -87,7 +89,7 @@ export class AuthService {
         }
 
         // generate the tokens
-        const tokens = this.generateToeksn(user)
+        const tokens = this.generateTokens(user)
         const {password, ...result} = user;
 
         return {
@@ -95,6 +97,34 @@ export class AuthService {
             ...tokens
         }
 
+    }
+
+    // Find the current user by ID
+
+    async refreshToken(refreshToken: string) {
+        try {
+            const payload = this.jwtService.verify(refreshToken, {
+                secret: "JWT_SECRET_REFRESH_KEY"
+            })
+
+            const user = await this.userRepository.findOne({
+                where: {
+                    id: payload.sub
+                }
+            })
+
+            if (!user) {
+                throw new UnauthorizedException('Invalid token')
+            }
+
+            const accessToken = this.generateRefreshToken(user)
+
+            return {
+                accessToken,
+            }
+        } catch (error) {
+            throw new UnauthorizedException('Invalid token')
+        }
     }
 
     private async hashPassword(password: string): Promise<string> {
@@ -119,9 +149,22 @@ export class AuthService {
             sub: user.id,
             role: user.role
         }
+
+        return this.jwtService.sign(payload, {
+            secret: "JWT_SECRET_KEY",
+            expiresIn: '15m'
+        });
+
     }
 
     private generateRefreshToken(user: User): string {
-        return ''
+        const payload = {
+            sub: user.id,
+        }
+
+        return this.jwtService.sign(payload, {
+            secret: "JWT_SECRET_REFRESH_KEY",
+            expiresIn: '7d'
+        });
     }
 }
