@@ -100,6 +100,20 @@ export class AuthService {
     }
 
     // Find the current user by ID
+    async getUserById(userId: number) {
+        const user = await this.userRepository.findOne({
+            where: {
+                id: userId
+            }
+        })
+
+        if (!user) {
+            throw new UnauthorizedException('User not found')
+        }
+
+        const {password, ...result} = user
+        return result
+    }
 
     async refreshToken(refreshToken: string) {
         try {
